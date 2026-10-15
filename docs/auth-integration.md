@@ -81,3 +81,15 @@ client/callback registration, cross-client code attacks, disabled accounts,
 email verification, bans, local/global logout, password-change revocation,
 provider outages, and anonymous/direct picture access. Main's exact unknown-account
 and identity-collision messages must be carried by its central sign-in screen.
+
+## Connected Sign-In UI Preference
+
+Owner feedback (15 October 2026) for main's Security screen:
+
+- Open connected sign-in email verification in a popup dialog instead of an
+  inline expanding panel or dropdown.
+- Use a white background with a green outline. Avoid translucent green fills
+  on the verification panel and its action buttons.
+
+This requirement is recorded here. Main's Security UI is not implemented in
+this repository and has not been changed.
