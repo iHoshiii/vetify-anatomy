@@ -9,6 +9,11 @@ import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
 describe('Private diagram delivery', () => {
+  it('permits only main and same-origin framing without a conflicting frame header', async () => {
+    const response = await request(createApp(config, fixture().provider)).get('/api/session')
+    expect(response.headers['content-security-policy']).toContain(`frame-ancestors 'self' ${config.mainOrigin}`)
+    expect(response.headers['x-frame-options']).toBeUndefined()
+  })
   it('denies all 15 diagrams without a session, including HEAD', async () => {
     const app = createApp(config, fixture().provider)
     for (const asset of manifest.assets) {
