@@ -8,6 +8,7 @@ import cat from './data/cat'
 import bird from './data/bird'
 import { useSession } from './use-session'
 import { mainAnatomyUrl, notifyMain } from './integration'
+import MainShell from './components/MainShell'
 
 const HOTSPOTS = { dog, cat, bird }
 function selection() {
@@ -23,9 +24,8 @@ export default function App() {
   const embedded = window.parent !== window || new URLSearchParams(location.search).get('embed') === '1'
   const failure = new URLSearchParams(location.search).get('auth')
   useEffect(() => {
-    if (!embedded) {
-      location.replace(mainAnatomyUrl(location.pathname, failure))
-    } else if (session.status === 'signed-in') {
+    if (!embedded) return
+    if (session.status === 'signed-in') {
       notifyMain('ready')
     } else if (session.status === 'signed-out' && !failure) {
       if (window.parent !== window) notifyMain('authenticate')
@@ -42,6 +42,7 @@ export default function App() {
     history.pushState(null, '', `/${animal}/${system}?embed=1`)
   }
   const signedIn = embedded && session.status === 'signed-in'
+  if (!embedded) return <MainShell />
   return <div className="app">
     {signedIn ? <main className="workspace">
       <Sidebar animal={current.animal} system={current.system} onChange={change} />

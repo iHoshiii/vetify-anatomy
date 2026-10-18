@@ -1,8 +1,8 @@
 {
   "publicFiles": [
     {
-      "path": "dist/assets/index-5RYrTpNf.js",
-      "bytes": 194571
+      "path": "dist/assets/index-CvzqXWme.js",
+      "bytes": 196066
     },
     {
       "path": "dist/assets/index-DWwayIso.css",
@@ -17,7 +17,7 @@
       "bytes": 76638
     }
   ],
-  "publicBytes": 278285,
+  "publicBytes": 279780,
   "privateDiagramCount": 15,
   "privateDiagramBytes": 1679714
 }
