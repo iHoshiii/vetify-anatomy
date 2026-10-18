@@ -4,8 +4,9 @@ import { resolve } from 'node:path'
 export function readConfig(env: NodeJS.ProcessEnv = process.env) {
   const vercel = env.VERCEL === '1'
   const production = env.NODE_ENV === 'production' || vercel
-  const mainOrigin = new URL(env.VITE_MAIN_ORIGIN || 'http://localhost:5173').origin
-  const callback = new URL(env.VITE_AUTH_CALLBACK_URL || 'http://localhost:5176/auth/callback')
+  const mainOrigin = new URL(env.VITE_MAIN_ORIGIN || (production ? 'https://vetify.page' : 'http://localhost:5173')).origin
+  const callback = new URL(env.VITE_AUTH_CALLBACK_URL || (production
+    ? 'https://anatomy.vetify.page/auth/callback' : 'http://localhost:5176/auth/callback'))
   const clientId = env.VITE_AUTH_CLIENT_ID || 'vetify-anatomy'
   const issuer = env.OIDC_ISSUER || ''
   const clientSecret = env.OIDC_CLIENT_SECRET || ''

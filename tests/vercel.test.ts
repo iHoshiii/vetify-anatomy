@@ -83,7 +83,11 @@ describe('Vercel hosting configuration', () => {
       VITE_AUTH_CALLBACK_URL: 'https://anatomy.vetify.page/auth/callback' })
     expect(settings.production).toBe(true)
     expect(settings.blobStorage).toBe(true)
-    expect(() => readConfig({ VERCEL: '1' })).toThrow()
+    const defaults = readConfig({ VERCEL: '1' })
+    expect(defaults.mainOrigin).toBe('https://vetify.page')
+    expect(defaults.callback).toBe('https://anatomy.vetify.page/auth/callback')
+    expect(defaults.configured).toBe(false)
+    expect(() => readConfig({ VERCEL: '1', VITE_MAIN_ORIGIN: 'http://localhost:5173' })).toThrow()
   })
   it('exports a serverless handler that denies access when sign-in is unconfigured', async () => {
     vi.stubEnv('VITE_MAIN_ORIGIN', 'https://main.example.test')

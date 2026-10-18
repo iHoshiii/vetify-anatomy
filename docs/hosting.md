@@ -19,7 +19,7 @@ never use the SPA fallback, so 401/403/503 responses remain errors.
 Connect this repository to a Vercel project and add `anatomy.vetify.page` as the
 production domain when ready. Configure these project environment variables:
 
-- `VITE_MAIN_ORIGIN`: main Vetify's actual HTTPS address on AWS.
+- `VITE_MAIN_ORIGIN`: `https://vetify.page`.
 - `VITE_AUTH_CLIENT_ID`: the client registered by main, `vetify-anatomy`.
 - `VITE_AUTH_CALLBACK_URL`: `https://anatomy.vetify.page/auth/callback`.
 - `OIDC_ISSUER`, `OIDC_CLIENT_SECRET`: main's compatible provider registration.
@@ -31,6 +31,28 @@ production domain when ready. Configure these project environment variables:
 Vercel sets `VERCEL=1`; the service then requires HTTPS/Secure cookies and uses
 private Blob storage. Local ports 5176/5177 and the private filesystem directory
 are development settings, not production hosting requirements.
+
+Production defaults use `https://vetify.page` and the Anatomy callback above.
+Set the public variables explicitly in Vercel to override local `.env` values.
+SSO stays unavailable until the server-only provider credentials are configured.
+
+## Deploy This Checkout
+
+```sh
+npx vercel login
+npx vercel link --project vetify-anatomy
+npx vercel env add VITE_MAIN_ORIGIN production
+npx vercel env add VITE_AUTH_CLIENT_ID production
+npx vercel env add VITE_AUTH_CALLBACK_URL production
+npx vercel --prod
+npx vercel domains add anatomy.vetify.page vetify-anatomy
+npx vercel domains inspect anatomy.vetify.page
+```
+
+Use the public values listed above at the environment prompts. Configure the
+server-only secrets and private Blob store before enabling authenticated use.
+Add the exact DNS record returned by Vercel at Name.com, which serves the
+`vetify.page` nameservers. Keep the root domain pointed at the main AWS site.
 
 Preview environments need separate exact callback registration in main, not an
 arbitrary return URL. Apply persistent Vercel Firewall limits to auth/image paths.
