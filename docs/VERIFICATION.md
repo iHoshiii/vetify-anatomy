@@ -1,5 +1,18 @@
 # Local Verification
 
+## MongoDB replacement, 18 October 2026
+
+34 unit tests passed across eight files. TypeScript, Vite, the private-content
+build check and built-service smoke passed. The uploader's `--check` mode
+verified all 15 original diagram hashes without connecting to a database.
+MongoDB adapter and delivery tests use mocks to cover pooled connections,
+connection retries, exact filename lookup, authentication before storage access,
+missing files, stream failure and credential-safe error responses.
+No live MongoDB connection, database upload or production deployment was tested.
+The historical Blob checks below describe the earlier implementation.
+
+## Original port verification
+
 Verified 14 October 2026. All application changes remain uncommitted on `dev`.
 Main was read only. No cloud resources, domain changes or application deployment
 were performed.
@@ -53,12 +66,12 @@ blocked by missing OIDC/web SSO in main. No runtime auth bypass or local fake lo
 is enabled. The live development URL shows a sign-in unavailable state and
 rejects picture requests until a real compatible provider is configured.
 
-Vercel Functions/private Blob routing and cache behavior, production direct access,
+Vercel Functions/MongoDB routing and cache behavior, production direct access,
 exact callback registrations and global logout require joint deployment tests.
 Main's old public diagram paths require removal or protection in its migration.
 Source does not provide image licensing/credit metadata. Release remains blocked
 until authentication, all deployed access paths and content rights are resolved.
 
 See `source-manifest.json` for source/asset hashes and `build-inventory.json` for
-the exact public file sizes. No Planner, Books, Blog, webcam proof, database or
+the exact public file sizes. No Planner, Books, Blog, webcam proof or
 main realtime dependencies enter the feature build.

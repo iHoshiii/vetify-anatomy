@@ -26,7 +26,8 @@ Both ports must be free. The UI uses the same origin for authentication and imag
 Original pictures have been copied into this checkout's `private-assets/anatomy`.
 That directory is ignored by Git to avoid publishing restricted pictures through
 a future code push. New checkouts need the same private asset export restored
-from main's `public/anatomy` or private Vercel Blob storage before image tests.
+from main's `public/anatomy` for original hash checks and browser image tests.
+Unit tests use isolated generated pictures and require no production database.
 
 `.env.example` contains public UI settings and server-only placeholders. A local
 `.env` is optional. Without configured shared sign-in, access stays closed.
@@ -85,9 +86,11 @@ See [source manifest](docs/source-manifest.json), [auth contract](docs/auth-inte
 [build inventory](docs/build-inventory.json).
 
 The public build contains UI code and logo only. Do not upload private diagrams
-to a public website directory. Production pictures use Vercel private Blob
-storage and are streamed through the authenticated Vercel Function. Local
-development uses the existing private asset directory. Vercel credentials
-remain server-side. Anatomy has no AWS SDK or storage configuration.
+to a public website directory. Production pictures use MongoDB GridFS in a
+dedicated `vetify_anatomy` database and are streamed through the authenticated
+Vercel Function. Local development uses the existing private asset directory
+unless `MONGODB_URI` is configured. Database credentials remain server-side.
+Use [MongoDB setup](docs/mongodb-storage.md) to configure Atlas and upload the
+15 original diagrams with `npm run upload:diagrams`. No Blob store is required.
 No server, database, payment, AI, Planner, Books, Blog, webcam or realtime feature
 code from main is imported.
