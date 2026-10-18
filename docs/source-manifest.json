@@ -1,0 +1,237 @@
+{
+  "captured": "2026-10-14",
+  "sources": [
+    {
+      "path": "src/client/pages/anatomy/anatomy-page.tsx",
+      "bytes": 1702,
+      "sha256": "ae2e1d38be4959096cbb525df14902e89721efa9062c5c2fc747fb42cf8c4f46"
+    },
+    {
+      "path": "src/client/pages/anatomy/_components/view.tsx",
+      "bytes": 5460,
+      "sha256": "28e417ff872164c164a2080d0d1f3e766f6d44c3867319acd5b2c677ad473d8d"
+    },
+    {
+      "path": "src/client/pages/anatomy/_components/sidebar.tsx",
+      "bytes": 3262,
+      "sha256": "381d02e6256d1aa8fccc395282792b6acfc27d024a840a4cec0fc1f46d6708ae"
+    },
+    {
+      "path": "src/client/pages/anatomy/_components/header.tsx",
+      "bytes": 1308,
+      "sha256": "f0baf684b2d03932e5cb88b1504371309352cad0327a22b653c44ef842a2b4ab"
+    },
+    {
+      "path": "src/client/pages/anatomy/data/dog.ts",
+      "bytes": 3396,
+      "sha256": "7085d3d9700e6a685cb62e2edefd0e5243cb406c2ae8e188192f33c0ff117479"
+    },
+    {
+      "path": "src/client/pages/anatomy/data/cat.ts",
+      "bytes": 2567,
+      "sha256": "0af851a171cbe17e49f93e62c0916caf6f09f75ddc4906157451129ae58743b5"
+    },
+    {
+      "path": "src/client/pages/anatomy/data/bird.ts",
+      "bytes": 3557,
+      "sha256": "5e9926fe5759d9044764893a620bc3c9fcbae99cc607010fc7715af553b6e595"
+    },
+    {
+      "path": "src/client/pages/anatomy/data/image-config.ts",
+      "bytes": 1434,
+      "sha256": "30e6e33370640fd221b9ef0622461a31c53f3f583209f418323225d3064bde42"
+    },
+    {
+      "path": "src/client/types/anatomy.ts",
+      "bytes": 1324,
+      "sha256": "acf54acc055a0e26077b584af0f78365513585f1f9dac95ae9a7c3e6c589cffc"
+    },
+    {
+      "path": "docs/main-deployment/shared-auth.md",
+      "bytes": 6216,
+      "sha256": "be2cc08cef5fede4fa91b2cc8ec6d866a0feac935f111e606e61993d9a4afacf"
+    }
+  ],
+  "assets": [
+    {
+      "source": "public/anatomy/dog/dog-skeleton.png",
+      "destination": "private-assets/anatomy/dog/dog-skeleton.png",
+      "route": "/anatomy/dog/dog-skeleton.png",
+      "bytes": 79650,
+      "sha256": "146b17d89155d56c98856e214da9b8c3f8caca1236da30b568db653cf90f9fa3",
+      "width": 341,
+      "height": 341,
+      "attribution": "Not provided by source",
+      "license": "Not provided by source"
+    },
+    {
+      "source": "public/anatomy/dog/dog-muscles.png",
+      "destination": "private-assets/anatomy/dog/dog-muscles.png",
+      "route": "/anatomy/dog/dog-muscles.png",
+      "bytes": 151061,
+      "sha256": "df2ac2dc552d90e4fb66081db3222717834c38ba364b82f531fb3ef959657581",
+      "width": 457,
+      "height": 340,
+      "attribution": "Not provided by source",
+      "license": "Not provided by source"
+    },
+    {
+      "source": "public/anatomy/dog/dog-digestive.png",
+      "destination": "private-assets/anatomy/dog/dog-digestive.png",
+      "route": "/anatomy/dog/dog-digestive.png",
+      "bytes": 111441,
+      "sha256": "3ada1a492016d5275eede0dc98c7ecacf4b054734aecef2c2505b0c8fb4e1d22",
+      "width": 482,
+      "height": 340,
+      "attribution": "Not provided by source",
+      "license": "Not provided by source"
+    },
+    {
+      "source": "public/anatomy/dog/dog-cardiovascular.png",
+      "destination": "private-assets/anatomy/dog/dog-cardiovascular.png",
+      "route": "/anatomy/dog/dog-cardiovascular.png",
+      "bytes": 172870,
+      "sha256": "bc458925a9c6f5efaa45d502055d9f5bb2d257af384ff4b9b061c452804f9eb3",
+      "width": 610,
+      "height": 340,
+      "attribution": "Not provided by source",
+      "license": "Not provided by source"
+    },
+    {
+      "source": "public/anatomy/dog/dog-nervous.png",
+      "destination": "private-assets/anatomy/dog/dog-nervous.png",
+      "route": "/anatomy/dog/dog-nervous.png",
+      "bytes": 93548,
+      "sha256": "7cd478c0f28861a475d48936a63034093dd2e7ba0f82c4842449ccb8db26581d",
+      "width": 303,
+      "height": 341,
+      "attribution": "Not provided by source",
+      "license": "Not provided by source"
+    },
+    {
+      "source": "public/anatomy/cat/cat-skeleton.png",
+      "destination": "private-assets/anatomy/cat/cat-skeleton.png",
+      "route": "/anatomy/cat/cat-skeleton.png",
+      "bytes": 101399,
+      "sha256": "20084252fd02d7afad0bb216410bca10d441cac267e3584f291f20aa3dd3e1f9",
+      "width": 321,
+      "height": 340,
+      "attribution": "Not provided by source",
+      "license": "Not provided by source"
+    },
+    {
+      "source": "public/anatomy/cat/cat-muscles.png",
+      "destination": "private-assets/anatomy/cat/cat-muscles.png",
+      "route": "/anatomy/cat/cat-muscles.png",
+      "bytes": 141057,
+      "sha256": "b11de9255c841573cde00cbd42f1edc5e5b908abf3fd675a80bc32c895b91174",
+      "width": 511,
+      "height": 341,
+      "attribution": "Not provided by source",
+      "license": "Not provided by source"
+    },
+    {
+      "source": "public/anatomy/cat/cat-digestive.png",
+      "destination": "private-assets/anatomy/cat/cat-digestive.png",
+      "route": "/anatomy/cat/cat-digestive.png",
+      "bytes": 103367,
+      "sha256": "c263928bc9a5bed6edcb6ebb52b83c368192a6ede5455f0540f51760b1bcab5e",
+      "width": 341,
+      "height": 341,
+      "attribution": "Not provided by source",
+      "license": "Not provided by source"
+    },
+    {
+      "source": "public/anatomy/cat/cat-cardiovascular.png",
+      "destination": "private-assets/anatomy/cat/cat-cardiovascular.png",
+      "route": "/anatomy/cat/cat-cardiovascular.png",
+      "bytes": 96630,
+      "sha256": "a929f8b7f8857cfcb26cddb91746a84e3ec3b71e61298af1e164576e05cecb7b",
+      "width": 341,
+      "height": 341,
+      "attribution": "Not provided by source",
+      "license": "Not provided by source"
+    },
+    {
+      "source": "public/anatomy/cat/cat-nervous.png",
+      "destination": "private-assets/anatomy/cat/cat-nervous.png",
+      "route": "/anatomy/cat/cat-nervous.png",
+      "bytes": 91308,
+      "sha256": "a1cd3fb8202136a53ddfbe6e9070eeeb0a912a7fd5cedbe3673781c065875ea9",
+      "width": 303,
+      "height": 341,
+      "attribution": "Not provided by source",
+      "license": "Not provided by source"
+    },
+    {
+      "source": "public/anatomy/bird/bird-skeleton.png",
+      "destination": "private-assets/anatomy/bird/bird-skeleton.png",
+      "route": "/anatomy/bird/bird-skeleton.png",
+      "bytes": 68613,
+      "sha256": "31fa155842c92fe5cdd7a6ad6fcb7912779c4650c5303b9b91270745d58253df",
+      "width": 279,
+      "height": 341,
+      "attribution": "Not provided by source",
+      "license": "Not provided by source"
+    },
+    {
+      "source": "public/anatomy/bird/bird-muscles.png",
+      "destination": "private-assets/anatomy/bird/bird-muscles.png",
+      "route": "/anatomy/bird/bird-muscles.png",
+      "bytes": 141483,
+      "sha256": "bd4974487d9c42a8a816d01d93154f1cd6947fcb877e717c686cbd07d1ee9aa5",
+      "width": 410,
+      "height": 340,
+      "attribution": "Not provided by source",
+      "license": "Not provided by source"
+    },
+    {
+      "source": "public/anatomy/bird/bird-digestive.png",
+      "destination": "private-assets/anatomy/bird/bird-digestive.png",
+      "route": "/anatomy/bird/bird-digestive.png",
+      "bytes": 118396,
+      "sha256": "516f09eb09069fe5cc95ef7776aa64a1d23f7f86d6279833a8bdd9918df3253d",
+      "width": 323,
+      "height": 341,
+      "attribution": "Not provided by source",
+      "license": "Not provided by source"
+    },
+    {
+      "source": "public/anatomy/bird/bird-cardiovascular.png",
+      "destination": "private-assets/anatomy/bird/bird-cardiovascular.png",
+      "route": "/anatomy/bird/bird-cardiovascular.png",
+      "bytes": 95805,
+      "sha256": "86c9206adcfaf5059f7304615bd2d7ccf6efaf67053372605c47855be073ad92",
+      "width": 301,
+      "height": 341,
+      "attribution": "Not provided by source",
+      "license": "Not provided by source"
+    },
+    {
+      "source": "public/anatomy/bird/bird-nervous.png",
+      "destination": "private-assets/anatomy/bird/bird-nervous.png",
+      "route": "/anatomy/bird/bird-nervous.png",
+      "bytes": 113086,
+      "sha256": "4293486a561f2c06c0b8498f854b3440079db6f06c8904ec3cabdd6002c7f2aa",
+      "width": 607,
+      "height": 341,
+      "attribution": "Not provided by source",
+      "license": "Not provided by source"
+    }
+  ],
+  "logo": {
+    "source": "public/vetify_logo.jpg",
+    "destination": "public/vetify_logo.jpg",
+    "bytes": 76638,
+    "sha256": "cefbf977dc112cc4d2b1df65b93081435f7f3b9d5c106d2bbf7207866dece48e"
+  },
+  "privateAssetBytes": 1679714,
+  "adaptations": [
+    "Standalone header with shared logo and configured main links",
+    "Responsive 800x500 coordinate frame",
+    "Protected image fetch and object URL lifecycle",
+    "Loading, error, retry and accessible tooltips",
+    "Typed hotspot data reformatted without content changes",
+    "Shared sign-in adapter, not available in current main"
+  ]
+}

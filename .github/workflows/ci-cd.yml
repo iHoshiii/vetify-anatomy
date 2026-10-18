@@ -1,0 +1,72 @@
+name: CI and Vercel production deployment
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Tests and production build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+        env:
+          VITE_MAIN_ORIGIN: https://vetify.page
+          VITE_AUTH_CLIENT_ID: vetify-anatomy
+          VITE_AUTH_CALLBACK_URL: https://anatomy.vetify.page/auth/callback
+
+  deploy:
+    name: Deploy production
+    needs: validate
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+    concurrency:
+      group: vercel-production
+      cancel-in-progress: false
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Check deployment credentials
+        shell: bash
+        run: |
+          for name in VERCEL_ORG_ID VERCEL_PROJECT_ID VERCEL_TOKEN; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Add $name to GitHub Actions secrets before deploying."
+              exit 1
+            fi
+          done
+      - name: Install Vercel CLI
+        run: npm install --global vercel@64.5.0
+      - name: Pull production configuration
+        run: vercel pull --yes --environment=production --token "$VERCEL_TOKEN"
+      - name: Build production deployment
+        run: vercel build --prod --token "$VERCEL_TOKEN"
+      - name: Publish production deployment
+        run: |
+          vercel deploy --prebuilt --prod --token "$VERCEL_TOKEN" > deployment-url.txt
+          echo "Production deployment: $(cat deployment-url.txt)" >> "$GITHUB_STEP_SUMMARY"

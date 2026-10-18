@@ -1,0 +1,23 @@
+{
+  "publicFiles": [
+    {
+      "path": "dist/assets/index-CvzqXWme.js",
+      "bytes": 196066
+    },
+    {
+      "path": "dist/assets/index-DWwayIso.css",
+      "bytes": 6565
+    },
+    {
+      "path": "dist/index.html",
+      "bytes": 511
+    },
+    {
+      "path": "dist/vetify_logo.jpg",
+      "bytes": 76638
+    }
+  ],
+  "publicBytes": 279780,
+  "privateDiagramCount": 15,
+  "privateDiagramBytes": 1679714
+}
