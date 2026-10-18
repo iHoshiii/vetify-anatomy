@@ -30,6 +30,9 @@ from main's `public/anatomy` or private Vercel Blob storage before image tests.
 
 `.env.example` contains public UI settings and server-only placeholders. A local
 `.env` is optional. Without configured shared sign-in, access stays closed.
+Use `.env.prod.example` as the production reference. Actual `.env.prod` files
+stay ignored. See [GitHub CI/CD setup](docs/github-cicd.md) for automated checks
+and deployment from `main`.
 For real integration, supply a registered main OIDC issuer/client secret and an
 independent 32-byte base64url session encryption key through private server config.
 Never reuse main's JWT secrets or put credentials into a `VITE_` variable.

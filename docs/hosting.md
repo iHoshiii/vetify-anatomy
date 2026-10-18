@@ -38,6 +38,10 @@ SSO stays unavailable until the server-only provider credentials are configured.
 
 ## Deploy This Checkout
 
+For GitHub Actions deployment, follow [CI/CD setup](github-cicd.md). Native
+Vercel Git deployments are disabled so production deploys after Actions checks.
+The commands below are available for manual deployment.
+
 ```sh
 npx vercel login
 npx vercel link --project vetify-anatomy
