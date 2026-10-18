@@ -10,3 +10,6 @@ test-results/
 .vercel/
 *.log
 *.tsbuildinfo
+AGENT.MD
+CLAUDE.MD
+CLAUDE.md
