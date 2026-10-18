@@ -15,6 +15,7 @@ describe('Vercel hosting configuration', () => {
     }
     expect(hosting.functions['api/index.ts'].includeFiles).toBe('dist/**')
     expect(hosting.rewrites.some(rule => rule.source === '/(.*)')).toBe(false)
+    expect(hosting.headers[0].headers).toContainEqual({ key: 'Content-Security-Policy', value: "frame-ancestors 'self' https://vetify.page" })
   })
   it('forces private storage and HTTPS cookies on Vercel, including previews', () => {
     const settings = readConfig({ VERCEL: '1', VITE_MAIN_ORIGIN: 'https://main.example.test',

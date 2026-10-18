@@ -3,7 +3,7 @@ import { ANIMALS, BODY_SYSTEMS } from '../../src/types/anatomy'
 import original from '../fixtures/source-hotspots.json' with { type: 'json' }
 
 test('all 15 diagrams render and every hotspot stays aligned', async ({ signedInPage: page }, info) => {
-  await page.goto('/')
+  await page.goto('/?embed=1')
   for (const animal of ANIMALS) {
     await page.getByRole('button', { name: animal.name, exact: true }).click()
     for (const system of BODY_SYSTEMS) {
@@ -42,7 +42,7 @@ test('all 15 diagrams render and every hotspot stays aligned', async ({ signedIn
 })
 
 test('pointer hover, keyboard focus and click expose preserved descriptions', async ({ signedInPage: page }, info) => {
-  await page.goto('/bird/skeletal')
+  await page.goto('/bird/skeletal?embed=1')
   const beak = page.getByRole('button', { name: 'Beak (Rostrum)', exact: true })
   await expect(beak).toBeVisible()
   if (!info.project.use.hasTouch) {
@@ -68,7 +68,7 @@ test('pointer hover, keyboard focus and click expose preserved descriptions', as
 })
 
 test('zoom bounds and resizing preserve hotspot coordinates', async ({ signedInPage: page }, info) => {
-  await page.goto('/cat/digestive')
+  await page.goto('/cat/digestive?embed=1')
   await expect(page.getByRole('button', { name: 'Stomach', exact: true })).toBeVisible()
   for (let i = 0; i < 6; i++) {
     const button = page.getByRole('button', { name: 'Zoom in', exact: true })
@@ -92,12 +92,12 @@ test('zoom bounds and resizing preserve hotspot coordinates', async ({ signedInP
   await page.screenshot({ path: `test-results/${info.project.name}-resized.png`, fullPage: true })
 })
 
-test('deep links and refresh retain animal/system and main navigation', async ({ signedInPage: page }) => {
-  await page.goto('/anatomy/bird/nervous')
+test('embedded deep links and refresh retain the selection without a duplicate navbar', async ({ signedInPage: page }) => {
+  await page.goto('/anatomy/bird/nervous?embed=1')
   await expect(page.getByRole('button', { name: 'Bird', exact: true })).toHaveAttribute('aria-pressed', 'true')
   await expect(page.getByRole('button', { name: 'Nervous System', exact: true })).toHaveAttribute('aria-pressed', 'true')
   await page.reload()
   await expect(page.getByRole('img', { name: 'bird nervous anatomy' })).toBeVisible()
-  await expect(page.getByRole('link', { name: 'Back to Vetify' })).toHaveAttribute('href', 'http://localhost:5173/services')
-  await expect(page.locator('a.assistant-link')).toHaveAttribute('href', 'http://localhost:5173/chat')
+  await expect(page.getByRole('banner')).toHaveCount(0)
+  await expect(page.getByRole('link', { name: 'Sign in with Vetify' })).toHaveCount(0)
 })

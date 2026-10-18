@@ -11,7 +11,8 @@ export function createApp(config: Config, provider: AuthProvider = createProvide
   const app = express()
   app.disable('x-powered-by')
   app.disable('etag')
-  app.use(helmet({ contentSecurityPolicy: { directives: {
+  app.use(helmet({ xFrameOptions: false, contentSecurityPolicy: { directives: {
+    'frame-ancestors': ["'self'", config.mainOrigin],
     'style-src': ["'self'", "'unsafe-inline'"], 'img-src': ["'self'", 'blob:', 'data:'],
     'upgrade-insecure-requests': config.production ? [] : null,
   } } }))
