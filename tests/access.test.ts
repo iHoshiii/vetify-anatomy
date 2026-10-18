@@ -5,6 +5,8 @@ import { readConfig } from '../server/config'
 import { validateIdentity } from '../server/provider'
 import { config, fixture } from './helpers'
 import manifest from '../docs/source-manifest.json'
+import { readFile } from 'node:fs/promises'
+import { join } from 'node:path'
 
 describe('Private diagram delivery', () => {
   it('denies all 15 diagrams without a session, including HEAD', async () => {
@@ -23,7 +25,7 @@ describe('Private diagram delivery', () => {
     for (const asset of manifest.assets) {
       const response = await request(app).get(asset.route).set('Cookie', await f.cookie())
       expect(response.status).toBe(200)
-      expect(response.body.length).toBe(asset.bytes)
+      expect(response.body).toEqual(await readFile(join(config.assetDir, asset.route.slice('/anatomy/'.length))))
       expect(response.headers['cache-control']).toContain('no-store')
       expect(response.headers.etag).toBeUndefined()
     }
