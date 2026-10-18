@@ -1,0 +1,15 @@
+node_modules/
+private-assets/
+dist/
+.env
+.env.*
+!.env.example
+playwright-report/
+test-results/
+.tmp/
+.vercel/
+*.log
+*.tsbuildinfo
+AGENT.MD
+CLAUDE.MD
+CLAUDE.md
