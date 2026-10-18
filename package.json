@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "engines": { "node": "24.x" },
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "dev": "concurrently -k -n ui,auth \"vite\" \"npm:dev:server\"",
     "dev:server": "node --env-file-if-exists=.env --import tsx --watch server/index.ts",
@@ -13,16 +15,17 @@
     "start": "npm run serve:server",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "manifest": "node scripts/asset-manifest.mjs"
+    "manifest": "node scripts/asset-manifest.mjs",
+    "upload:diagrams": "node --env-file-if-exists=.env.prod --import tsx scripts/upload-diagrams.ts"
   },
   "dependencies": {
-    "@vercel/blob": "^2.8.2",
     "@floating-ui/react": "^0.27.0",
     "cookie-parser": "^1.4.7",
     "express": "^5.1.0",
     "helmet": "^8.1.0",
     "jose": "^6.0.0",
     "lucide-react": "^0.468.0",
+    "mongodb": "^7.7.0",
     "openid-client": "^6.0.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
