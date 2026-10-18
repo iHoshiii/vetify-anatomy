@@ -11,6 +11,13 @@ export function readConfig(env: NodeJS.ProcessEnv = process.env) {
   const issuer = env.OIDC_ISSUER || ''
   const clientSecret = env.OIDC_CLIENT_SECRET || ''
   const encodedKey = env.SESSION_ENCRYPTION_KEY || ''
+  const mongoUri = env.MONGODB_URI || ''
+  const mongoDatabase = env.MONGODB_DATABASE || 'vetify_anatomy'
+  const mongoBucket = env.ANATOMY_GRIDFS_BUCKET || 'anatomy'
+  if (mongoUri && !/^mongodb(?:\+srv)?:\/\//.test(mongoUri)) throw new Error('Invalid MONGODB_URI scheme')
+  for (const name of [mongoDatabase, mongoBucket]) {
+    if (!/^[A-Za-z][A-Za-z0-9_-]{0,62}$/.test(name)) throw new Error('Invalid Anatomy database or bucket name')
+  }
   if (callback.pathname !== '/auth/callback' || callback.search || callback.hash) {
     throw new Error('Callback must be an exact /auth/callback URL')
   }
@@ -30,9 +37,8 @@ export function readConfig(env: NodeJS.ProcessEnv = process.env) {
     configured: Boolean(issuer && clientSecret && encodedKey),
     port: Number(env.ANATOMY_SERVER_PORT || 5177),
     assetDir: resolve(env.ANATOMY_PRIVATE_ASSET_DIR || 'private-assets/anatomy'),
-    vercel, blobToken: env.BLOB_READ_WRITE_TOKEN || '', blobStoreId: env.BLOB_STORE_ID || '',
-    blobPrefix: env.ANATOMY_BLOB_PREFIX ?? 'anatomy/',
-    blobStorage: vercel || Boolean(env.BLOB_READ_WRITE_TOKEN || env.BLOB_STORE_ID),
+    vercel, mongoUri, mongoDatabase, mongoBucket,
+    mongoStorage: production || Boolean(mongoUri),
   }
 }
 export type Config = ReturnType<typeof readConfig>

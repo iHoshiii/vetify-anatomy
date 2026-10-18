@@ -1,7 +1,6 @@
 import { Router } from 'express'
 import { join } from 'node:path'
-import { Readable } from 'node:stream'
-import { get } from '@vercel/blob'
+import { openPicture } from './mongodb'
 import type { Config } from './config'
 import type { authService } from './auth'
 import IMAGE_CONFIG from '../src/data/image-config'
@@ -19,19 +18,19 @@ export function assetRouter(config: Config, auth: ReturnType<typeof authService>
   router.get('/:animal/:file', async (req, res, next) => {
     const key = `${req.params.animal}/${req.params.file}`
     if (!allowed.has(`/anatomy/${key}`)) return res.sendStatus(404)
-    if (!config.blobStorage) return res.type('png').sendFile(join(config.assetDir, key), {
+    if (!config.mongoStorage) return res.type('png').sendFile(join(config.assetDir, key), {
       cacheControl: false, lastModified: false, etag: false, acceptRanges: false, dotfiles: 'deny',
     }, error => { if (error) next(error) })
     try {
-      if (!config.blobToken && !config.blobStoreId) return res.status(503).json({ error: 'Private picture storage is unavailable.' })
-      const object = await get(`${config.blobPrefix}${key}`, {
-        access: 'private', token: config.blobToken || undefined, storeId: config.blobStoreId || undefined,
-      })
-      if (!object) return res.sendStatus(404)
-      if (object.statusCode !== 200 || !object.stream) throw new Error('Private picture unavailable')
+      if (!config.mongoUri) return res.status(503).json({ error: 'Private picture storage is unavailable.' })
+      const body = await openPicture(config, key)
+      if (!body) return res.sendStatus(404)
       res.type('png')
-      const body = Readable.fromWeb(object.stream as Parameters<typeof Readable.fromWeb>[0])
-      body.on('error', next)
+      body.on('error', () => {
+        body.unpipe(res)
+        if (res.headersSent) res.destroy()
+        else res.status(503).type('json').json({ error: 'Private picture storage is unavailable.' })
+      })
       res.on('close', () => body.destroy())
       body.pipe(res)
     } catch {

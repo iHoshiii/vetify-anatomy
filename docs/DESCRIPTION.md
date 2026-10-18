@@ -25,9 +25,9 @@ React/TypeScript/Vite frontend with preserved hotspot data and a static UI build
 The separate auth/image service delivers diagrams only after authorization.
 Suggested future domain: `https://anatomy.vetify.page`, not yet configured.
 Anatomy's deployment target is Vercel; only main Vetify is hosted on AWS. Vercel Functions
-perform authentication and stream pictures from Vercel private Blob storage.
-No feature database is required initially; diagrams require authenticated
-delivery from private storage.
+perform authentication and stream pictures from MongoDB GridFS. Anatomy uses a
+dedicated `vetify_anatomy` database for diagrams, separate from main's accounts.
+MongoDB credentials remain server-side and every image request requires sign-in.
 
 Main alone owns accounts, login methods, verification, professional approvals,
 subscriptions and credential storage. Anatomy must not copy users or main secrets.

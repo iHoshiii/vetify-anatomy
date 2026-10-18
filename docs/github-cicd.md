@@ -17,7 +17,7 @@ validation passes. Feature branches and pull requests do not deploy.
 3. In Vercel, add the values from `.env.prod.example` to Production environment
    variables. This is a reference template, not an automatically loaded env file.
    Keep actual `.env.prod` files local and ignored. Keep private diagrams in a
-   connected private Blob store, as described in [hosting](hosting.md).
+   MongoDB GridFS database, as described in [MongoDB setup](mongodb-storage.md).
 4. Generate a new session key locally:
 
    ```sh
@@ -47,7 +47,7 @@ Tests use generated PNG fixtures in a temporary directory, with no production
 storage credentials. The original private diagram integrity test is explicitly
 skipped when `private-assets/anatomy` is absent. Restore those files locally and
 run `npm run manifest` to verify their original hashes before uploading them.
-Logo integrity, all routes, authentication and private Blob behavior remain
+Logo integrity, all routes, authentication and mocked MongoDB storage behavior remain
 covered in CI. Browser tests and real shared sign-in are separate checks.
 
 `vercel.json` disables native Git deployments so a push cannot bypass Actions.

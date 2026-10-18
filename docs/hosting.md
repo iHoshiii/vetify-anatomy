@@ -24,12 +24,12 @@ production domain when ready. Configure these project environment variables:
 - `VITE_AUTH_CALLBACK_URL`: `https://anatomy.vetify.page/auth/callback`.
 - `OIDC_ISSUER`, `OIDC_CLIENT_SECRET`: main's compatible provider registration.
 - `SESSION_ENCRYPTION_KEY`: an independent 32-byte base64url encryption key.
-- `BLOB_READ_WRITE_TOKEN`: server-only token for a private Vercel Blob store,
-  or connect a store using Vercel-managed `BLOB_STORE_ID`/OIDC credentials.
-- `ANATOMY_BLOB_PREFIX`: `anatomy/` unless the private object prefix differs.
+- `MONGODB_URI`: server-only connection string for an Anatomy-scoped database user.
+- `MONGODB_DATABASE`: `vetify_anatomy`, separate from main's database.
+- `ANATOMY_GRIDFS_BUCKET`: `anatomy`.
 
 Vercel sets `VERCEL=1`; the service then requires HTTPS/Secure cookies and uses
-private Blob storage. Local ports 5176/5177 and the private filesystem directory
+MongoDB GridFS storage. Local ports 5176/5177 and the private filesystem directory
 are development settings, not production hosting requirements.
 
 Production defaults use `https://vetify.page` and the Anatomy callback above.
@@ -54,7 +54,7 @@ npx vercel domains inspect anatomy.vetify.page
 ```
 
 Use the public values listed above at the environment prompts. Configure the
-server-only secrets and private Blob store before enabling authenticated use.
+server-only secrets and MongoDB storage before enabling authenticated use.
 Add the exact DNS record returned by Vercel at Name.com, which serves the
 `vetify.page` nameservers. Keep the root domain pointed at the main AWS site.
 
@@ -65,16 +65,17 @@ responses. No wildcard CORS policy or shared parent-domain cookie is used.
 
 ## Private Diagram Storage
 
-Create a **private** Vercel Blob store and connect it to Anatomy. Upload the
-unchanged PNG files at `anatomy/<animal>/<animal>-<system-file>.png`, without random
-filename suffixes. These paths match `docs/source-manifest.json` after removing
-the leading slash from each picture route. A public Blob store is incompatible
-with the signed-in-only requirement.
+Use MongoDB GridFS in a dedicated `vetify_anatomy` database. Follow
+[MongoDB setup](mongodb-storage.md) to configure Atlas access and upload the
+15 unchanged PNGs. Filenames such as `dog/dog-skeleton.png` match picture routes
+after removing `/anatomy/`. The `anatomy` bucket uses `anatomy.files` and
+`anatomy.chunks`; no accounts or main application collections are accessed.
 
-The function verifies the current Vetify session before using `@vercel/blob`
-`get(..., { access: 'private' })` to stream the allowlisted file. Storage tokens
-and direct Blob URLs are never returned to the browser. Missing credentials,
-storage failure or authentication failure do not make pictures public.
+The function verifies the current Vetify session before opening a GridFS stream
+for the allowlisted filename. Database credentials never reach the browser.
+Missing credentials, storage failure or authentication failure deny access.
+Production never falls back to local files. Connection pools are reused within
+each function instance and bounded to five connections.
 
 The public Vercel output contains UI code and logo only. All 15 diagram hashes
 are excluded by the build check. `private-assets/` is ignored by Git and by
@@ -84,7 +85,7 @@ Local development still reads this private directory; set
 
 Vercel references: [Vite hosting](https://vercel.com/docs/frameworks/frontend/vite),
 [Node functions](https://vercel.com/docs/functions/runtimes/node-js), and
-[private Blob delivery](https://vercel.com/docs/vercel-blob/private-storage).
+[MongoDB GridFS](https://www.mongodb.com/docs/drivers/node/current/crud/gridfs/).
 
 ## Release Gates
 
@@ -97,6 +98,6 @@ and attribution before publishing. Preserve the supplied PNG bytes and record
 any later approved attribution in the source manifest.
 
 Test anonymous and expired-session image links through the deployed Vercel domain
-and direct private Blob URLs. Verify no cached responses survive logout, no UI
+and diagram URLs opened directly. Verify no cached responses survive logout, no UI
 rewrite swallows auth errors, and all 15 diagrams load only after authorization.
 Previously saved files cannot be revoked. The guarantee covers future delivery.

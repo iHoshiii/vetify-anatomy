@@ -4,6 +4,15 @@ import { createApp } from '../server/app'
 import { config, fixture } from './helpers'
 
 describe('Authorization handoff and logout', () => {
+  it('moves local IP sign-in to the registered callback host before setting transaction cookies', async () => {
+    const f = fixture()
+    const response = await request(createApp(config, f.provider)).get('/auth/login?returnTo=/cat/digestive')
+      .set('Host', '127.0.0.1:5176')
+    expect(response.status).toBe(302)
+    expect(response.headers.location).toBe('http://localhost:5176/auth/login?returnTo=%2Fcat%2Fdigestive')
+    expect(response.headers['set-cookie']).toBeUndefined()
+    expect(f.provider.authorize).not.toHaveBeenCalled()
+  })
   it('keeps state, verifier and nonce in a short-lived HttpOnly cookie', async () => {
     const f = fixture()
     const response = await request(createApp(config, f.provider)).get('/auth/login?returnTo=/cat/digestive')
