@@ -28,6 +28,12 @@ export function authService(config: Config, provider: AuthProvider) {
     const returnTo = typeof req.query.returnTo === 'string' ? req.query.returnTo : '/'
     if (!/^\/(?:anatomy\/)?(?:dog|cat|bird)\/(?:skeletal|muscular|digestive|cardiovascular|nervous)$/.test(returnTo)
       && !['/', '/anatomy'].includes(returnTo)) return res.status(400).json({ error: 'Invalid return destination' })
+    const localAlias = config.origin.replace('://localhost:', '://127.0.0.1:')
+    if (!config.production && config.origin.startsWith('http://localhost:') && `http://${req.get('host')}` === localAlias) {
+      const destination = new URL('/auth/login', config.origin)
+      destination.searchParams.set('returnTo', returnTo)
+      return res.redirect(destination.href)
+    }
     if (!config.configured) return res.redirect('/?auth=unavailable')
     const transaction = { state: randomState(), verifier: randomPKCECodeVerifier(), nonce: randomNonce(), returnTo }
     try {
