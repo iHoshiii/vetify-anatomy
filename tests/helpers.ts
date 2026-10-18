@@ -3,8 +3,10 @@ import { vi } from 'vitest'
 import { readConfig } from '../server/config'
 import { cookieVault } from '../server/cookies'
 import type { AuthProvider } from '../server/provider'
+import { testAssetDir } from './private-assets'
 
 export const config = readConfig({
+  ANATOMY_PRIVATE_ASSET_DIR: testAssetDir,
   VITE_MAIN_ORIGIN: 'http://localhost:5173', OIDC_ISSUER: 'http://localhost:5173',
   OIDC_CLIENT_SECRET: 'test-fixture-only', SESSION_ENCRYPTION_KEY: randomBytes(32).toString('base64url'),
 })

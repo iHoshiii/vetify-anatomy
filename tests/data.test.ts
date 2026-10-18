@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { readFile } from 'node:fs/promises'
+import { existsSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import dog from '../src/data/dog'
 import cat from '../src/data/cat'
@@ -28,8 +29,12 @@ describe('Behavior-preserving source port', () => {
     expect(IMAGE_CONFIG.dog.skeletal.scale).toBe(1.4)
     expect(IMAGE_CONFIG.cat.digestive.scale).toBe(1.2)
   })
-  it('preserves original diagram and logo bytes', async () => {
-    for (const asset of [...manifest.assets, manifest.logo]) {
+  it('preserves original logo bytes', async () => {
+    const bytes = await readFile(manifest.logo.destination)
+    expect(createHash('sha256').update(bytes).digest('hex')).toBe(manifest.logo.sha256)
+  })
+  it.skipIf(!existsSync('private-assets/anatomy'))('preserves original private diagram bytes when restored', async () => {
+    for (const asset of manifest.assets) {
       const bytes = await readFile(asset.destination)
       expect(createHash('sha256').update(bytes).digest('hex')).toBe(asset.sha256)
     }

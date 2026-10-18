@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import request from 'supertest'
 import { readFile } from 'node:fs/promises'
+import { join } from 'node:path'
 import { get, type GetBlobResult } from '@vercel/blob'
 import { createApp } from '../server/app'
 import { config, fixture } from './helpers'
@@ -20,7 +21,7 @@ describe('Vercel private picture delivery', () => {
     expect(get).not.toHaveBeenCalled()
   })
   it('streams an authenticated picture without exposing its storage token or URL', async () => {
-    const data = await readFile('private-assets/anatomy/dog/dog-skeleton.png')
+    const data = await readFile(join(config.assetDir, 'dog/dog-skeleton.png'))
     const object: GetBlobResult = {
       statusCode: 200, headers: new Headers(), stream: new ReadableStream({ start(controller) {
         controller.enqueue(data); controller.close()
