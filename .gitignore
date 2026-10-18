@@ -3,7 +3,6 @@ private-assets/
 dist/
 .env
 .env.*
-!.env.example
 playwright-report/
 test-results/
 .tmp/
@@ -13,3 +12,8 @@ test-results/
 AGENT.MD
 CLAUDE.MD
 CLAUDE.md
+
+.vercel
+.env*
+!.env.example
+!.env.prod.example
