@@ -1,12 +1,12 @@
 # GitHub CI/CD setup
 
-The workflow runs unit tests and a production build on pushes and pull requests.
-Only a push to `main`, or a manual run on `main`, deploys to production after
-validation passes. Feature branches and pull requests do not deploy.
+The workflow runs only on pushes to `main`, including merges into `main`.
+It runs unit tests and a production build, then deploys after validation passes.
+Pushes to other branches, pull requests and manual events do not run the workflow.
 
 ## One-time setup
 
-1. Push `chore/github-cicd` and open a pull request into `main`.
+1. Submit the workflow changes through your branch review process.
 2. Create or link the Vercel project from this checkout:
 
    ```sh
@@ -34,9 +34,9 @@ validation passes. Feature branches and pull requests do not deploy.
    secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID`. App credentials
    belong in Vercel, not in the workflow, sample file or GitHub source.
 7. In GitHub Settings, Environments, configure `production` to allow deployments
-   from `main`. Under branch protection or rulesets, require the
-   `Tests and production build` check for pull requests into `main`.
-8. Wait for the pull request checks, then merge. The push to `main` runs checks
+   from `main`. Remove any pull request requirement for this workflow's
+   `Tests and production build` check because it runs only after a push to `main`.
+8. Review and merge the changes into `main`. The push to `main` runs checks
    and deploys. Follow the run in Actions and find its URL in the job summary.
 9. Configure `anatomy.vetify.page` using [hosting](hosting.md), then verify the
    deployed sign-in screen and anonymous picture denial.
