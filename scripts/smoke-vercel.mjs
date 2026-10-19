@@ -20,7 +20,7 @@ try {
   const session = await fetch(`${origin}/api/session`)
   assert.equal(session.status, 401)
   assert.deepEqual(await session.json(), { status: 'signed-out' })
-  const picture = await fetch(`${origin}/anatomy/dog/skeletal.png`)
+  const picture = await fetch(`${origin}/anatomy/dog/dog-skeleton.png`)
   assert.equal(picture.status, 401)
   console.log('Vercel function starts in native Node ESM and denies anonymous session/picture access.')
 } finally {
