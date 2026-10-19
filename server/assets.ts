@@ -1,9 +1,9 @@
 import { Router } from 'express'
 import { join } from 'node:path'
-import { openPicture } from './mongodb'
-import type { Config } from './config'
-import type { authService } from './auth'
-import IMAGE_CONFIG from '../src/data/image-config'
+import { openPicture } from './mongodb.js'
+import type { Config } from './config.js'
+import type { authService } from './auth.js'
+import IMAGE_CONFIG from '../src/data/image-config.js'
 
 export function assetRouter(config: Config, auth: ReturnType<typeof authService>) {
   const router = Router()

@@ -1,5 +1,5 @@
-import { createApp } from './app'
-import { readConfig } from './config'
+import { createApp } from './app.js'
+import { readConfig } from './config.js'
 
 const config = readConfig()
 const server = createApp(config).listen(config.port, config.production ? '0.0.0.0' : '127.0.0.1', () => {

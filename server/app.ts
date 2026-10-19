@@ -2,10 +2,10 @@ import express from 'express'
 import cookieParser from 'cookie-parser'
 import helmet from 'helmet'
 import { resolve } from 'node:path'
-import type { Config } from './config'
-import { createProvider, type AuthProvider } from './provider'
-import { authService } from './auth'
-import { assetRouter } from './assets'
+import type { Config } from './config.js'
+import { createProvider, type AuthProvider } from './provider.js'
+import { authService } from './auth.js'
+import { assetRouter } from './assets.js'
 
 export function createApp(config: Config, provider: AuthProvider = createProvider(config)) {
   const app = express()
