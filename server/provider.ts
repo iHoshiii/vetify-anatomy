@@ -1,5 +1,5 @@
 import * as oidc from 'openid-client'
-import type { Config } from './config'
+import type { Config } from './config.js'
 
 export type Identity = { sub: string; exp: number }
 export type Transaction = { state: string; verifier: string; nonce: string; returnTo: string }

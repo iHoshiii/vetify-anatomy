@@ -1,6 +1,6 @@
 import { MongoClient, GridFSBucket } from 'mongodb'
 import type { Readable } from 'node:stream'
-import type { Config } from './config'
+import type { Config } from './config.js'
 
 const connections = new Map<string, Promise<MongoClient>>()
 

@@ -1,6 +1,6 @@
 import { EncryptJWT, jwtDecrypt, type JWTPayload } from 'jose'
 import type { Request, Response } from 'express'
-import type { Config } from './config'
+import type { Config } from './config.js'
 
 export function cookieVault(config: Config) {
   const name = (purpose: string) => `${config.production ? '__Host-' : ''}anatomy-${purpose}`

@@ -1,19 +1,25 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { hasSessionHint, updateSessionHint } from './session-hint'
 
 export type SessionStatus = 'loading' | 'signed-in' | 'signed-out' | 'unavailable'
 export function useSession() {
-  const [status, setStatus] = useState<SessionStatus>('loading')
-  const lastStatus = useRef<SessionStatus>('loading')
+  const [status, setStatus] = useState<SessionStatus>(() => hasSessionHint() ? 'signed-in' : 'loading')
+  const lastStatus = useRef(status)
+  const [verified, setVerified] = useState(false)
   const revision = useRef(0)
   const [logoutFailed, setLogoutFailed] = useState(false)
   const check = useCallback(async (signal?: AbortSignal) => {
     const requestRevision = revision.current
     try {
       const response = await fetch('/api/session', { credentials: 'same-origin', cache: 'no-store', signal })
-      const next = response.ok ? 'signed-in' : response.status === 401 ? 'signed-out' : 'unavailable'
-      if (!signal?.aborted && requestRevision === revision.current) { lastStatus.current = next; setStatus(next) }
+      const next = response.ok ? 'signed-in' : [401, 403].includes(response.status) ? 'signed-out' : 'unavailable'
+      if (!signal?.aborted && requestRevision === revision.current) {
+        updateSessionHint(next === 'signed-in'); setVerified(next === 'signed-in'); lastStatus.current = next; setStatus(next)
+      }
     } catch {
-      if (!signal?.aborted && requestRevision === revision.current) { lastStatus.current = 'unavailable'; setStatus('unavailable') }
+      if (!signal?.aborted && requestRevision === revision.current) {
+        updateSessionHint(false); setVerified(false); lastStatus.current = 'unavailable'; setStatus('unavailable')
+      }
     }
   }, [])
   useEffect(() => {
@@ -34,7 +40,10 @@ export function useSession() {
   }, [check])
   async function logout() {
     revision.current++
+    updateSessionHint(false)
+    setVerified(false)
     lastStatus.current = 'signed-out'
+    setStatus('signed-out')
     let failed = false
     try { failed = !(await fetch('/auth/logout', { method: 'POST', credentials: 'same-origin' })).ok }
     catch { failed = true }
@@ -42,5 +51,7 @@ export function useSession() {
     setStatus('signed-out')
     setLogoutFailed(failed)
   }
-  return { status, check, logout, logoutFailed, invalidate: () => { revision.current++; lastStatus.current = 'signed-out'; setStatus('signed-out') } }
+  return { status, verified, check, logout, logoutFailed, invalidate: () => {
+    revision.current++; updateSessionHint(false); setVerified(false); lastStatus.current = 'signed-out'; setStatus('signed-out')
+  } }
 }

@@ -66,6 +66,8 @@ jobs:
         run: vercel pull --yes --environment=production --token "$VERCEL_TOKEN"
       - name: Build production deployment
         run: vercel build --prod --token "$VERCEL_TOKEN"
+      - name: Check production function startup
+        run: npm run test:vercel
       - name: Publish production deployment
         run: |
           vercel deploy --prebuilt --prod --token "$VERCEL_TOKEN" > deployment-url.txt

@@ -3,11 +3,14 @@ import { test, expect } from './fixtures'
 test.use({ permissions: ['local-network-access'] })
 
 test('normal direct entry keeps the Anatomy address and hosts main navigation', async ({ page }) => {
+  let sessionChecks = 0
+  await page.route('**/api/session', route => { sessionChecks++; return route.fulfill({ status: 401 }) })
   await page.route('http://localhost:5173/anatomy**', route => route.fulfill({ contentType: 'text/html', body: '<h1>Main Vetify</h1>' }))
   await page.goto('/bird/nervous')
   await expect(page).toHaveURL('http://localhost:5176/bird/nervous')
   await expect(page.frameLocator('iframe').getByRole('heading', { name: 'Main Vetify' })).toBeVisible()
   await expect(page.locator('iframe')).toHaveAttribute('src', 'http://localhost:5173/anatomy?hosted=1&view=%2Fbird%2Fnervous')
+  expect(sessionChecks).toBe(0)
 })
 
 test('an embedded signed-out viewer asks main to perform the login handoff', async ({ page }) => {

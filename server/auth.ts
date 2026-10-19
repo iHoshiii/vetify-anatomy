@@ -1,8 +1,8 @@
 import { Router, type Request } from 'express'
 import { randomNonce, randomPKCECodeVerifier, randomState } from 'openid-client'
-import type { Config } from './config'
-import { cookieVault } from './cookies'
-import type { AuthProvider, Transaction } from './provider'
+import type { Config } from './config.js'
+import { cookieVault } from './cookies.js'
+import type { AuthProvider, Transaction } from './provider.js'
 
 export function authService(config: Config, provider: AuthProvider) {
   const vault = cookieVault(config)
