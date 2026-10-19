@@ -18,20 +18,18 @@ function selection() {
   return { animal, system }
 }
 
-export default function App() {
+function EmbeddedViewer() {
   const session = useSession()
   const [current, setCurrent] = useState(selection)
-  const embedded = window.parent !== window || new URLSearchParams(location.search).get('embed') === '1'
   const failure = new URLSearchParams(location.search).get('auth')
   useEffect(() => {
-    if (!embedded) return
-    if (session.status === 'signed-in') {
+    if (session.status === 'signed-in' && session.verified) {
       notifyMain('ready')
     } else if (session.status === 'signed-out' && !failure) {
       if (window.parent !== window) notifyMain('authenticate')
       else location.replace(mainAnatomyUrl(location.pathname))
     }
-  }, [embedded, failure, session.status])
+  }, [failure, session.status, session.verified])
   useEffect(() => {
     const update = () => setCurrent(selection())
     window.addEventListener('popstate', update)
@@ -41,8 +39,7 @@ export default function App() {
     setCurrent({ animal, system })
     history.pushState(null, '', `/${animal}/${system}?embed=1`)
   }
-  const signedIn = embedded && session.status === 'signed-in'
-  if (!embedded) return <MainShell />
+  const signedIn = session.status === 'signed-in'
   return <div className="app">
     {signedIn ? <main className="workspace">
       <Sidebar animal={current.animal} system={current.system} onChange={change} />
@@ -50,4 +47,9 @@ export default function App() {
         onUnauthorized={session.invalidate} />
     </main> : <SignIn status={session.status} onRetry={() => void session.check()} />}
   </div>
+}
+
+export default function App() {
+  const embedded = window.parent !== window || new URLSearchParams(location.search).get('embed') === '1'
+  return embedded ? <EmbeddedViewer /> : <MainShell />
 }
