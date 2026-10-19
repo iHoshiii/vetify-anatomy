@@ -14,6 +14,7 @@
     "serve:server": "node --env-file-if-exists=.env --import tsx server/index.ts",
     "start": "npm run serve:server",
     "test": "vitest run",
+    "test:vercel": "node scripts/smoke-vercel.mjs",
     "test:e2e": "playwright test",
     "manifest": "node scripts/asset-manifest.mjs",
     "upload:diagrams": "node --env-file-if-exists=.env.prod --import tsx scripts/upload-diagrams.ts"
