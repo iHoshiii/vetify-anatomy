@@ -31,6 +31,9 @@ a { color: inherit; text-decoration: none; }
 .systems button:hover { background: #f5f8f8; }
 .system-icon { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; flex-shrink: 0; font-size: 18px; background: #f1f4f5; border-radius: 6px; }
 .signin { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px; text-align: center; }
+.loading-spinner { color: #0f766e; animation: loading-spin 1s linear infinite; }
+@keyframes loading-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .loading-spinner { animation: none; } }
 .signin h1 { font-size: 28px; margin: 18px 0 8px; color: #173c37; }
 .signin p { font-size: 14px; line-height: 1.6; max-width: 380px; margin: 8px 0 20px; }
 .lock-icon { color: #0f766e; }
