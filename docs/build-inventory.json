@@ -1,12 +1,12 @@
 {
   "publicFiles": [
     {
-      "path": "dist/assets/index-B6_-5dVt.js",
-      "bytes": 195787
+      "path": "dist/assets/index-CDzkPknw.js",
+      "bytes": 190519
     },
     {
-      "path": "dist/assets/index-CT90IdPL.css",
-      "bytes": 6692
+      "path": "dist/assets/index-CGDMsu7v.css",
+      "bytes": 13541
     },
     {
       "path": "dist/index.html",
@@ -17,7 +17,7 @@
       "bytes": 76638
     }
   ],
-  "publicBytes": 279628,
+  "publicBytes": 281209,
   "privateDiagramCount": 15,
   "privateDiagramBytes": 1679714
 }

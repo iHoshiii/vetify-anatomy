@@ -1,26 +1,18 @@
-import { autoUpdate, flip, FloatingPortal, offset, shift, useFloating } from '@floating-ui/react'
-import { useId } from 'react'
 import type { AnatomySystem } from '../types/anatomy'
 
-export default function Hotspot({ spot, active, onOpen, onClose }: {
-  spot: AnatomySystem; active: boolean; onOpen: (id: string) => void; onClose: (id: string) => void
+export default function Hotspot({ spot, active, number, offset = { x: 0, y: 0 }, onSelect }: {
+  spot: AnatomySystem; active: boolean; number?: number; offset?: { x: number; y: number }; onSelect: (spot: AnatomySystem) => void
 }) {
-  const tooltipId = useId()
-  const { refs, floatingStyles } = useFloating({
-    open: active, placement: 'top', strategy: 'fixed', whileElementsMounted: autoUpdate,
-    middleware: [offset(4), flip({ padding: 12 }), shift({ padding: 12 })],
-  })
+  const length = Math.hypot(offset.x, offset.y)
   return <>
-    <button ref={refs.setReference} className="hotspot" aria-label={spot.title}
-      aria-describedby={active ? tooltipId : undefined} aria-expanded={active}
-      style={{ left: `${spot.x}%`, top: `${spot.y}%` }}
-      onClick={() => { if (active) onClose(spot.id); else onOpen(spot.id) }}
-      onKeyDown={event => { if (event.key === 'Escape') onClose(spot.id) }}>
-      <span />
+    {number && length > 2 && <span className="quiz-origin" aria-hidden="true" style={{ left: `${spot.x}%`, top: `${spot.y}%` }}>
+      <span className="quiz-leader" style={{ width: length, rotate: `${Math.atan2(offset.y, offset.x)}rad` }} />
+    </span>}
+    <button className={`hotspot${number ? ' quiz-dot' : ''}`} aria-label={number ? `Part ${number}` : spot.title}
+    data-structure-id={spot.id} aria-expanded={active}
+    style={{ left: `calc(${spot.x}% + ${offset.x}px)`, top: `calc(${spot.y}% + ${offset.y}px)` }}
+    onClick={() => onSelect(spot)}>
+    <span>{number}</span>
     </button>
-    {active && <FloatingPortal><div id={tooltipId} role="tooltip" ref={refs.setFloating}
-      style={floatingStyles} className="hotspot-tooltip">
-      <strong>{spot.title}</strong><p>{spot.desc}</p>
-    </div></FloatingPortal>}
   </>
 }

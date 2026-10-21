@@ -1,85 +1,67 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import IMAGE_CONFIG from '../data/image-config'
 import type { AnatomySystem, AnimalId, SystemId } from '../types/anatomy'
+import { useAnatomyImage } from '../use-anatomy-image'
+import { useViewerCamera } from '../use-viewer-camera'
+import { useAnatomyQuiz } from '../use-anatomy-quiz'
+import { quizMarkers } from '../quiz-markers'
 import Hotspot from './Hotspot'
+import StudyNote from './StudyNote'
+import ViewerControls from './ViewerControls'
+import QuizPanel from './QuizPanel'
 
 export default function Viewer({ animal, system, hotspots, onUnauthorized }: {
   animal: AnimalId; system: SystemId; hotspots: AnatomySystem[]; onUnauthorized: () => void
 }) {
   const config = IMAGE_CONFIG[animal][system]
-  const [zoom, setZoom] = useState(1)
-  const [fit, setFit] = useState(1)
-  const [active, setActive] = useState<string | null>(null)
-  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
-  const [source, setSource] = useState('')
-  const [loadedFor, setLoadedFor] = useState('')
-  const [attempt, setAttempt] = useState(0)
-  const viewport = useRef<HTMLDivElement>(null)
+  const image = useAnatomyImage(config.src, onUnauthorized)
+  const camera = useViewerCamera()
+  const quiz = useAnatomyQuiz(hotspots)
+  const [active, setActive] = useState<AnatomySystem | null>(null)
+  const [showDots, setShowDots] = useState(true)
+  const ready = image.status === 'ready'
+  const markers = quiz.round ? quizMarkers(hotspots, camera.stageStyle.width, camera.stageStyle.height) : []
+  function closeNote(restoreFocus = false) {
+    if (restoreFocus && active) camera.viewport.current?.querySelector<HTMLButtonElement>(`[data-structure-id="${active.id}"]`)?.focus()
+    setActive(null)
+  }
   useEffect(() => {
-    if (!active) return
-    const close = (event: KeyboardEvent) => { if (event.key === 'Escape') setActive(null) }
+    const close = (event: KeyboardEvent) => { if (event.key === 'Escape') closeNote(true) }
     window.addEventListener('keydown', close)
     return () => window.removeEventListener('keydown', close)
   }, [active])
-  useEffect(() => {
-    const element = viewport.current!
-    const observer = new ResizeObserver(([entry]) => {
-      setFit(Math.max(0.1, Math.min(1, (entry.contentRect.width - 32) / 800, (entry.contentRect.height - 48) / 500)))
-    })
-    observer.observe(element)
-    return () => observer.disconnect()
-  }, [])
-  useEffect(() => {
-    const controller = new AbortController()
-    let objectUrl = ''
-    setStatus('loading')
-    setSource('')
-    setLoadedFor('')
-    setActive(null)
-    fetch(config.src, { credentials: 'same-origin', cache: 'no-store', signal: controller.signal })
-      .then(async response => {
-        if (response.status === 401 || response.status === 403) { onUnauthorized(); throw new Error('Signed out') }
-        if (!response.ok || !response.headers.get('content-type')?.startsWith('image/png')) throw new Error('Image unavailable')
-        const blob = await response.blob()
-        if (!controller.signal.aborted) { objectUrl = URL.createObjectURL(blob); setLoadedFor(config.src); setSource(objectUrl) }
-      }).catch(() => { if (!controller.signal.aborted) setStatus('error') })
-    return () => { controller.abort(); if (objectUrl) URL.revokeObjectURL(objectUrl) }
-  }, [config.src, attempt])
-  const scale = fit * zoom
-  const visibleStatus = loadedFor && loadedFor !== config.src ? 'loading' : status
-  return <section className="viewer" aria-label={`${animal} ${system} anatomy`}>
-    <div className="viewport" ref={viewport} onPointerDown={event => {
-      if (!(event.target instanceof Element) || !event.target.closest('.hotspot')) setActive(null)
-    }}>
-      <div className="stage-layout">
-        <div className="diagram-stage" data-testid="diagram-stage" style={{ width: 800 * scale, height: 500 * scale }}>
-          {source && loadedFor === config.src && <img className="diagram" src={source} alt={`${animal} ${system} anatomy`}
-            style={{ transform: `translate(-50%, -50%) scale(${config.scale})` }}
-            onLoad={() => setStatus('ready')} onError={() => setStatus('error')} />}
-          {visibleStatus === 'ready' && hotspots.map(spot => <Hotspot key={spot.id} spot={spot}
-            active={active === spot.id} onOpen={setActive} onClose={id => setActive(current => current === id ? null : current)} />)}
+  function explore(spot: AnatomySystem) { setShowDots(true); setActive(spot); camera.focus(spot) }
+  function pick(spot: AnatomySystem) {
+    if (quiz.round) { if (quiz.answer(spot.id)) explore(spot); return }
+    if (active?.id === spot.id) closeNote()
+    else explore(spot)
+  }
+  function reset() { closeNote(); camera.reset() }
+  function startQuiz() { reset(); quiz.start() }
+  function reveal() { const spot = quiz.reveal(); if (spot) explore(spot) }
+  function exitQuiz() { quiz.exit(); reset() }
+  return <section className={`viewer${active ? ' has-note' : ''}`} aria-label={`${animal} ${system} anatomy`}>
+    {quiz.round && <QuizPanel quiz={quiz} onReveal={reveal} onNext={() => { reset(); quiz.next() }} onExit={exitQuiz} />}
+    <div className="viewer-main">
+      <div className="viewport" ref={camera.viewport} tabIndex={0} role="group" aria-label="Anatomy canvas"
+        aria-description="Drag to pan. Scroll or pinch to zoom. Use arrow keys to pan, plus and minus to zoom, Home to reset."
+        {...camera.handlers}>
+        <div className="diagram-stage" data-testid="diagram-stage" style={camera.stageStyle}>
+          {image.source && <img className="diagram" src={image.source} alt={`${animal} ${system} anatomy`}
+            style={{ transform: `translate(-50%, -50%) scale(${config.scale})` }} onLoad={image.loaded} onError={image.failed} />}
+          {ready && (showDots || quiz.round) && hotspots.map((spot, index) => <Hotspot key={spot.id} spot={spot}
+            active={active?.id === spot.id} number={quiz.round ? index + 1 : undefined} offset={markers[index]} onSelect={pick} />)}
         </div>
+        {!ready && <div className="image-state" role={image.status === 'error' ? 'alert' : 'status'}>
+          <p>{image.status === 'loading' ? 'Loading anatomy picture...' : 'This picture could not be loaded.'}</p>
+          {image.status === 'error' && <button className="primary-button" onClick={image.retry}>Retry</button>}
+        </div>}
       </div>
+      {active && ready && <StudyNote key={active.id} spot={active} animal={animal} system={system}
+        index={hotspots.findIndex(spot => spot.id === active.id)} total={hotspots.length} onClose={() => closeNote(true)} />}
     </div>
-    {visibleStatus !== 'ready' && <div className="image-state" role={visibleStatus === 'error' ? 'alert' : 'status'}>
-      <p>{visibleStatus === 'loading' ? 'Loading anatomy picture...' : 'This picture could not be loaded.'}</p>
-      {visibleStatus === 'error' && <button className="primary-button" onClick={() => setAttempt(value => value + 1)}>Retry</button>}
-    </div>}
-    <div className="zoom-toolbar" role="group" aria-label="Viewer controls">
-        <select className="structure-menu" aria-label="Structure" value={active || ''} disabled={visibleStatus !== 'ready'}
-          onChange={event => setActive(event.target.value || null)}
-          onKeyDown={event => { if (event.key === 'Escape') setActive(null) }}>
-          <option value="">Structures</option>
-          {hotspots.map(spot => <option key={spot.id} value={spot.id}>{spot.title}</option>)}
-        </select>
-      <span className="toolbar-divider" aria-hidden="true" />
-      <button className="zoom-button" title="Zoom out" aria-label="Zoom out" disabled={zoom <= 0.5}
-        onClick={() => setZoom(value => Math.max(0.5, Math.round((value - 0.2) * 10) / 10))}>−</button>
-      <output aria-label="Zoom level">{Math.round(zoom * 100)}%</output>
-      <button className="zoom-button" title="Zoom in" aria-label="Zoom in" disabled={zoom >= 2}
-        onClick={() => setZoom(value => Math.min(2, Math.round((value + 0.2) * 10) / 10))}>+</button>
-      <span className="toolbar-divider" aria-hidden="true" />
-      <button className="reset-button" aria-label="Reset zoom" onClick={() => setZoom(1)}>Reset</button>
-    </div>
+    <ViewerControls hotspots={hotspots} active={active?.id ?? null} ready={ready} zoom={camera.zoom}
+      showDots={showDots || !!quiz.round} quizzing={!!quiz.round} onSelect={explore} onZoom={camera.changeZoom} onReset={reset}
+      onDots={() => { closeNote(); setShowDots(value => !value) }} onQuiz={startQuiz} />
   </section>
 }
