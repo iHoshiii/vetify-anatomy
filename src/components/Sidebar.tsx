@@ -9,7 +9,7 @@ export default function Sidebar({ animal, system, onChange }: {
       <div className="species" role="group" aria-label="Species">
         {ANIMALS.map(item => <button key={item.id} aria-pressed={animal === item.id}
           onClick={() => onChange(item.id, system)}>
-          <span className="species-icon" aria-hidden="true">{item.icon}</span><span>{item.name}</span>
+          {item.name}
         </button>)}
       </div>
     </section>
@@ -18,7 +18,7 @@ export default function Sidebar({ animal, system, onChange }: {
       <div className="systems" role="group" aria-label="Body system">
         {BODY_SYSTEMS.map(item => <button key={item.id} aria-pressed={system === item.id}
           onClick={() => onChange(animal, item.id)}>
-          <span className="system-icon" aria-hidden="true">{item.icon}</span><span>{item.name}</span>
+          {item.name}
         </button>)}
       </div>
     </section>

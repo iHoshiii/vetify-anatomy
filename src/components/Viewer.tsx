@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import { List, Minus, Plus, RotateCcw, RefreshCw } from 'lucide-react'
 import IMAGE_CONFIG from '../data/image-config'
 import type { AnatomySystem, AnimalId, SystemId } from '../types/anatomy'
 import Hotspot from './Hotspot'
@@ -16,6 +15,12 @@ export default function Viewer({ animal, system, hotspots, onUnauthorized }: {
   const [loadedFor, setLoadedFor] = useState('')
   const [attempt, setAttempt] = useState(0)
   const viewport = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!active) return
+    const close = (event: KeyboardEvent) => { if (event.key === 'Escape') setActive(null) }
+    window.addEventListener('keydown', close)
+    return () => window.removeEventListener('keydown', close)
+  }, [active])
   useEffect(() => {
     const element = viewport.current!
     const observer = new ResizeObserver(([entry]) => {
@@ -43,7 +48,9 @@ export default function Viewer({ animal, system, hotspots, onUnauthorized }: {
   const scale = fit * zoom
   const visibleStatus = loadedFor && loadedFor !== config.src ? 'loading' : status
   return <section className="viewer" aria-label={`${animal} ${system} anatomy`}>
-    <div className="viewport" ref={viewport}>
+    <div className="viewport" ref={viewport} onPointerDown={event => {
+      if (!(event.target instanceof Element) || !event.target.closest('.hotspot')) setActive(null)
+    }}>
       <div className="stage-layout">
         <div className="diagram-stage" data-testid="diagram-stage" style={{ width: 800 * scale, height: 500 * scale }}>
           {source && loadedFor === config.src && <img className="diagram" src={source} alt={`${animal} ${system} anatomy`}
@@ -56,24 +63,23 @@ export default function Viewer({ animal, system, hotspots, onUnauthorized }: {
     </div>
     {visibleStatus !== 'ready' && <div className="image-state" role={visibleStatus === 'error' ? 'alert' : 'status'}>
       <p>{visibleStatus === 'loading' ? 'Loading anatomy picture...' : 'This picture could not be loaded.'}</p>
-      {visibleStatus === 'error' && <button className="primary-button" onClick={() => setAttempt(value => value + 1)}><RefreshCw size={16} />Retry</button>}
+      {visibleStatus === 'error' && <button className="primary-button" onClick={() => setAttempt(value => value + 1)}>Retry</button>}
     </div>}
-    <div className="zoom-toolbar" aria-label="Zoom controls">
-      <label className="structure-menu icon-button" title="Structures">
-        <List size={18} aria-hidden="true" />
-        <select aria-label="Structure" value={active || ''} disabled={visibleStatus !== 'ready'}
+    <div className="zoom-toolbar" role="group" aria-label="Viewer controls">
+        <select className="structure-menu" aria-label="Structure" value={active || ''} disabled={visibleStatus !== 'ready'}
           onChange={event => setActive(event.target.value || null)}
           onKeyDown={event => { if (event.key === 'Escape') setActive(null) }}>
           <option value="">Structures</option>
           {hotspots.map(spot => <option key={spot.id} value={spot.id}>{spot.title}</option>)}
         </select>
-      </label>
-      <button className="icon-button" title="Zoom out" aria-label="Zoom out" disabled={zoom <= 0.5}
-        onClick={() => setZoom(value => Math.max(0.5, Math.round((value - 0.2) * 10) / 10))}><Minus size={18} /></button>
+      <span className="toolbar-divider" aria-hidden="true" />
+      <button className="zoom-button" title="Zoom out" aria-label="Zoom out" disabled={zoom <= 0.5}
+        onClick={() => setZoom(value => Math.max(0.5, Math.round((value - 0.2) * 10) / 10))}>−</button>
       <output aria-label="Zoom level">{Math.round(zoom * 100)}%</output>
-      <button className="icon-button" title="Zoom in" aria-label="Zoom in" disabled={zoom >= 2}
-        onClick={() => setZoom(value => Math.min(2, Math.round((value + 0.2) * 10) / 10))}><Plus size={18} /></button>
-      <button className="icon-button" title="Reset zoom" aria-label="Reset zoom" onClick={() => setZoom(1)}><RotateCcw size={16} /></button>
+      <button className="zoom-button" title="Zoom in" aria-label="Zoom in" disabled={zoom >= 2}
+        onClick={() => setZoom(value => Math.min(2, Math.round((value + 0.2) * 10) / 10))}>+</button>
+      <span className="toolbar-divider" aria-hidden="true" />
+      <button className="reset-button" aria-label="Reset zoom" onClick={() => setZoom(1)}>Reset</button>
     </div>
   </section>
 }

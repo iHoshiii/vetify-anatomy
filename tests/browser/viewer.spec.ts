@@ -41,20 +41,20 @@ test('all 15 diagrams render and every hotspot stays aligned', async ({ signedIn
   }
 })
 
-test('pointer hover, keyboard focus and click expose preserved descriptions', async ({ signedInPage: page }, info) => {
+test('details stay hidden until selected and support keyboard and touch dismissal', async ({ signedInPage: page }, info) => {
   await page.goto('/bird/skeletal?embed=1')
   const beak = page.getByRole('button', { name: 'Beak (Rostrum)', exact: true })
   await expect(beak).toBeVisible()
   if (!info.project.use.hasTouch) {
     await beak.hover()
-    await expect(page.getByRole('tooltip')).toContainText('Keratinous beak adapted for cracking seeds and foraging.')
+    await expect(page.getByRole('tooltip')).not.toBeVisible()
     await page.mouse.move(0, 0)
     await expect(page.getByRole('tooltip')).not.toBeVisible()
   }
   await page.getByRole('button', { name: 'Skull', exact: true }).focus()
   await page.keyboard.press('Tab')
   await expect(beak).toBeFocused()
-  await expect(page.getByRole('tooltip')).toContainText('Beak (Rostrum)')
+  await expect(page.getByRole('tooltip')).not.toBeVisible()
   await page.keyboard.press('Space')
   await expect(page.getByRole('tooltip')).toContainText('Beak (Rostrum)')
   await page.keyboard.press('Escape')
@@ -64,6 +64,10 @@ test('pointer hover, keyboard focus and click expose preserved descriptions', as
   await expect(page.getByRole('tooltip')).toContainText('Beak (Rostrum)')
   if (info.project.use.hasTouch) await beak.tap()
   else await beak.click()
+  await expect(page.getByRole('tooltip')).not.toBeVisible()
+  await page.getByRole('combobox', { name: 'Structure', exact: true }).selectOption('beak')
+  await expect(page.getByRole('tooltip')).toContainText('Beak (Rostrum)')
+  await page.keyboard.press('Escape')
   await expect(page.getByRole('tooltip')).not.toBeVisible()
 })
 
