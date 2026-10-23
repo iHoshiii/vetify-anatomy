@@ -1,8 +1,11 @@
 import { test, expect } from './fixtures'
 import { ANIMALS, BODY_SYSTEMS } from '../../src/types/anatomy'
 import original from '../fixtures/source-hotspots.json' with { type: 'json' }
+import { getStudyNote } from '../../src/data/study-notes'
+import { selectStructure } from './viewer-actions'
 
 test('all 15 diagrams render and every hotspot stays aligned', async ({ signedInPage: page }, info) => {
+  test.setTimeout(120000)
   await page.goto('/?embed=1')
   for (const animal of ANIMALS) {
     await page.getByRole('button', { name: animal.name, exact: true }).click()
@@ -23,60 +26,65 @@ test('all 15 diagrams render and every hotspot stays aligned', async ({ signedIn
         return marked
       })
       expect(pixels).toBeGreaterThan(500)
-      const stage = await page.getByTestId('diagram-stage').boundingBox()
-      expect(stage).not.toBeNull()
       for (const spot of original[animal.id][system.id]) {
         const button = page.getByRole('button', { name: spot.title, exact: true })
-        const box = await button.boundingBox()
-        expect(box).not.toBeNull()
-        expect(Math.abs(box!.x + box!.width / 2 - (stage!.x + stage!.width * spot.x / 100))).toBeLessThan(1)
-        expect(Math.abs(box!.y + box!.height / 2 - (stage!.y + stage!.height * spot.y / 100))).toBeLessThan(1)
-        await page.getByRole('combobox', { name: 'Structure', exact: true }).selectOption(spot.id)
-        await expect(page.getByRole('tooltip')).toContainText(spot.desc)
+        const error = await button.evaluate((element, position) => {
+          const box = element.getBoundingClientRect(), stage = element.parentElement!.getBoundingClientRect()
+          return Math.hypot(box.x + box.width / 2 - stage.x - stage.width * position.x / 100,
+            box.y + box.height / 2 - stage.y - stage.height * position.y / 100)
+        }, spot)
+        expect(error).toBeLessThan(1)
+        await selectStructure(page, spot.title)
+        const note = page.getByRole('region', { name: spot.title, exact: true })
+        await expect(note).toContainText(getStudyNote(animal.id, system.id, spot).purpose)
       }
-      await page.getByRole('combobox', { name: 'Structure', exact: true }).selectOption('')
+      await page.getByRole('button', { name: 'Reset zoom', exact: true }).click()
       expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false)
     }
     await page.screenshot({ path: `test-results/${info.project.name}-${animal.id}.png`, fullPage: true })
   }
 })
 
-test('pointer hover, keyboard focus and click expose preserved descriptions', async ({ signedInPage: page }, info) => {
+test('details stay hidden until selected and support keyboard and touch dismissal', async ({ signedInPage: page }, info) => {
   await page.goto('/bird/skeletal?embed=1')
   const beak = page.getByRole('button', { name: 'Beak (Rostrum)', exact: true })
   await expect(beak).toBeVisible()
   if (!info.project.use.hasTouch) {
     await beak.hover()
-    await expect(page.getByRole('tooltip')).toContainText('Keratinous beak adapted for cracking seeds and foraging.')
+    await expect(page.locator('.study-note')).not.toBeVisible()
     await page.mouse.move(0, 0)
-    await expect(page.getByRole('tooltip')).not.toBeVisible()
+    await expect(page.locator('.study-note')).not.toBeVisible()
   }
   await page.getByRole('button', { name: 'Skull', exact: true }).focus()
   await page.keyboard.press('Tab')
   await expect(beak).toBeFocused()
-  await expect(page.getByRole('tooltip')).toContainText('Beak (Rostrum)')
+  await expect(page.locator('.study-note')).not.toBeVisible()
   await page.keyboard.press('Space')
-  await expect(page.getByRole('tooltip')).toContainText('Beak (Rostrum)')
+  await expect(page.getByRole('region', { name: 'Beak (Rostrum)', exact: true })).toBeVisible()
   await page.keyboard.press('Escape')
-  await expect(page.getByRole('tooltip')).not.toBeVisible()
+  await expect(page.locator('.study-note')).not.toBeVisible()
   if (info.project.use.hasTouch) await beak.tap()
   else await beak.click()
-  await expect(page.getByRole('tooltip')).toContainText('Beak (Rostrum)')
+  await expect(page.getByRole('region', { name: 'Beak (Rostrum)', exact: true })).toBeVisible()
   if (info.project.use.hasTouch) await beak.tap()
   else await beak.click()
-  await expect(page.getByRole('tooltip')).not.toBeVisible()
+  await expect(page.locator('.study-note')).not.toBeVisible()
+  await selectStructure(page, 'Beak (Rostrum)')
+  await expect(page.getByRole('region', { name: 'Beak (Rostrum)', exact: true })).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(page.locator('.study-note')).not.toBeVisible()
 })
 
 test('zoom bounds and resizing preserve hotspot coordinates', async ({ signedInPage: page }, info) => {
   await page.goto('/cat/digestive?embed=1')
   await expect(page.getByRole('button', { name: 'Stomach', exact: true })).toBeVisible()
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 12; i++) {
     const button = page.getByRole('button', { name: 'Zoom in', exact: true })
     if (await button.isEnabled()) await button.click()
   }
-  await expect(page.getByLabel('Zoom level')).toHaveText('200%')
+  await expect(page.getByLabel('Zoom level')).toHaveText('300%')
   await expect(page.getByRole('button', { name: 'Zoom in', exact: true })).toBeDisabled()
-  for (let i = 0; i < 9; i++) {
+  for (let i = 0; i < 15; i++) {
     const button = page.getByRole('button', { name: 'Zoom out', exact: true })
     if (await button.isEnabled()) await button.click()
   }
