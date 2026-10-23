@@ -6,7 +6,7 @@ test('normal direct entry keeps the Anatomy address and hosts main navigation', 
   let sessionChecks = 0
   await page.route('**/api/session', route => { sessionChecks++; return route.fulfill({ status: 401 }) })
   await page.route('http://localhost:5173/anatomy**', route => route.fulfill({ contentType: 'text/html', body: '<h1>Main Vetify</h1>' }))
-  await page.goto('/bird/nervous')
+  await page.goto('/bird/nervous', { waitUntil: 'domcontentloaded' })
   await expect(page).toHaveURL('http://localhost:5176/bird/nervous')
   await expect(page.frameLocator('iframe').getByRole('heading', { name: 'Main Vetify' })).toBeVisible()
   await expect(page.locator('iframe')).toHaveAttribute('src', 'http://localhost:5173/anatomy?hosted=1&view=%2Fbird%2Fnervous')
@@ -23,6 +23,8 @@ test('an embedded signed-out viewer asks main to perform the login handoff', asy
     });</script>` }))
   await page.goto('http://localhost:5173/anatomy-test')
   await expect(page.locator('#result')).toHaveText('vetify-anatomy:authenticate')
+  await expect(page.frameLocator('iframe').getByRole('status', { name: 'Loading' })).toBeVisible()
+  await expect(page.frameLocator('iframe').getByText(/connecting|checking your sign-in/i)).toHaveCount(0)
   await expect(page.frameLocator('iframe').getByRole('link', { name: 'Sign in with Vetify' })).toHaveCount(0)
 })
 
@@ -45,11 +47,11 @@ test('the Anatomy host starts sign-in at the top level using only a safe view', 
     </script>` }))
   await page.route('http://localhost:5176/auth/login**', route => {
     expect(new URL(route.request().url()).searchParams.get('returnTo')).toBe('/bird/nervous')
-    return route.fulfill({status:302,headers:{location:'http://localhost:5173/login'}})
+    return route.fulfill({contentType:'text/html',body:'<h1>Main login</h1>'})
   })
-  await page.route('http://localhost:5173/login', route => route.fulfill({contentType:'text/html',body:'<h1>Main login</h1>'}))
   await page.goto('/')
-  await expect(page).toHaveURL('http://localhost:5173/login')
+  await expect(page).toHaveURL('http://localhost:5176/auth/login?returnTo=%2Fbird%2Fnervous')
+  await expect(page.getByRole('heading', { name: 'Main login' })).toBeVisible()
 })
 
 test('hosted navbar links leave the outer page for main Vetify', async ({ page }) => {

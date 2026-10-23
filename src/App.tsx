@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { ANIMALS, BODY_SYSTEMS, type AnimalId, type SystemId } from './types/anatomy'
+import type { AnimalId, SystemId } from './types/anatomy'
+import { readSelection, rememberSelection } from './selection'
 import Sidebar from './components/Sidebar'
 import Viewer from './components/Viewer'
 import SignIn from './components/SignIn'
@@ -11,17 +12,19 @@ import { mainAnatomyUrl, notifyMain } from './integration'
 import MainShell from './components/MainShell'
 
 const HOTSPOTS = { dog, cat, bird }
-function selection() {
-  const parts = location.pathname.replace(/^\/anatomy/, '').split('/').filter(Boolean)
-  const animal = ANIMALS.find(item => item.id === parts[0])?.id ?? 'dog'
-  const system = BODY_SYSTEMS.find(item => item.id === parts[1])?.id ?? 'skeletal'
-  return { animal, system }
-}
+const selection = () => readSelection(location.pathname)
 
 function EmbeddedViewer() {
   const session = useSession()
   const [current, setCurrent] = useState(selection)
   const failure = new URLSearchParams(location.search).get('auth')
+  useEffect(() => {
+    if (session.status !== 'signed-in') return
+    rememberSelection(current)
+    if (['/', '/anatomy', '/anatomy/'].includes(location.pathname)) {
+      history.replaceState(null, '', `/${current.animal}/${current.system}${location.search}`)
+    }
+  }, [current, session.status])
   useEffect(() => {
     if (session.status === 'signed-in' && session.verified) {
       notifyMain('ready')
@@ -43,7 +46,7 @@ function EmbeddedViewer() {
   return <div className="app">
     {signedIn ? <main className="workspace">
       <Sidebar animal={current.animal} system={current.system} onChange={change} />
-      <Viewer animal={current.animal} system={current.system} hotspots={HOTSPOTS[current.animal][current.system]}
+      <Viewer key={`${current.animal}/${current.system}`} animal={current.animal} system={current.system} hotspots={HOTSPOTS[current.animal][current.system]}
         onUnauthorized={session.invalidate} />
     </main> : <SignIn status={session.status} onRetry={() => void session.check()} />}
   </div>
